@@ -1,9 +1,12 @@
 /* ── MITTI PWA — API Client ── */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const RAW_API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = RAW_API_BASE.replace(/\/+$/, '').replace(/\/api$/, '');
 
 async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
+  const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+  console.log(`Fetching from API: ${url}`);
+  const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json', ...options.headers },
     cache: 'no-store',
     ...options,
