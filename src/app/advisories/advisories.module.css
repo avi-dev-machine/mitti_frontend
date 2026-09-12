@@ -1,0 +1,64 @@
+.page { display: flex; flex-direction: column; gap: var(--space-lg); }
+.pageHeader { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md); }
+.pageTitle { font-size: var(--font-size-3xl); font-weight: 800; color: var(--green-dark); }
+.deviceSelect {
+  padding: 10px 16px; border-radius: var(--radius-sm); border: 2px solid var(--border-light);
+  font-size: var(--font-size-sm); font-weight: 600; background: var(--bg-card);
+  color: var(--text-primary); cursor: pointer; min-height: 44px;
+}
+.deviceSelect:focus { border-color: var(--green-primary); outline: none; }
+
+.loading { display: flex; flex-direction: column; align-items: center; gap: var(--space-md); padding: var(--space-2xl); color: var(--text-tertiary); }
+.spinner { width: 40px; height: 40px; border: 4px solid var(--border-light); border-top-color: var(--green-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: var(--space-md); padding: var(--space-2xl); color: var(--text-tertiary); font-size: var(--font-size-lg); }
+.empty span { font-size: 48px; }
+
+.advisoryList { display: flex; flex-direction: column; gap: var(--space-md); }
+.advisoryCard {
+  background: var(--bg-card); border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--neutral-grey); overflow: hidden;
+  transition: box-shadow var(--transition-base); animation: slideUp 0.4s ease-out both;
+}
+.advisoryCard:hover { box-shadow: var(--shadow-md); }
+.expanded { box-shadow: var(--shadow-md); }
+
+.advHeader {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--space-md) var(--space-lg); width: 100%; text-align: left;
+  background: none; cursor: pointer; min-height: 44px;
+}
+.advHeaderLeft { display: flex; flex-direction: column; gap: 4px; }
+.advProblem { font-size: var(--font-size-base); font-weight: 700; color: var(--text-primary); }
+.advTime { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+.expandIcon { color: var(--text-tertiary); font-size: 12px; }
+
+.advBody {
+  padding: 0 var(--space-lg) var(--space-lg); animation: fadeIn 0.3s ease-out;
+  display: flex; flex-direction: column; gap: var(--space-md);
+}
+.advSummary { color: var(--text-secondary); line-height: 1.6; }
+
+.section h4 { font-size: var(--font-size-sm); font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-sm); }
+.section ul, .section ol { padding-left: var(--space-lg); display: flex; flex-direction: column; gap: 4px; }
+.section li { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.5; }
+.section p { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.5; }
+
+.guidanceBox {
+  background: var(--green-surface); border-radius: var(--radius-sm);
+  padding: var(--space-md);
+}
+.guidanceBox h4 { color: var(--green-dark); }
+
+.uncertaintyBox {
+  display: flex; align-items: flex-start; gap: var(--space-sm);
+  padding: var(--space-md); background: var(--warning-yellow-surface);
+  border-radius: var(--radius-sm);
+}
+.uncertaintyBox p { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.5; margin: 0; }
+
+.advFooter {
+  display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap;
+  padding-top: var(--space-md); border-top: 1px solid var(--border-light);
+}
+.advConfidence { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+.advTimestamp { font-size: var(--font-size-xs); color: var(--text-tertiary); }

@@ -1,0 +1,31 @@
+{
+  "name": "MITTI — Crop Intelligence",
+  "short_name": "MITTI",
+  "description": "Crop intelligence rooted in Indian soil. Monitor your farm devices, view sensor data, and get crop advisories.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#F7F9F7",
+  "theme_color": "#2E7D32",
+  "orientation": "portrait-primary",
+  "categories": ["agriculture", "iot", "monitoring"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

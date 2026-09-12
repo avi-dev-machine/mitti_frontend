@@ -1,0 +1,204 @@
+/* ── MITTI AppShell Styles ── */
+
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: linear-gradient(135deg, var(--green-dark), var(--green-primary));
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(27, 94, 32, 0.3);
+}
+
+.headerInner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+  color: var(--text-inverse);
+}
+
+.logoIcon {
+  font-size: 24px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+.logoText {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.connectionBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+}
+
+.connectionDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #69F0AE;
+  box-shadow: 0 0 6px rgba(105, 240, 174, 0.6);
+  animation: pulse 2s infinite;
+}
+
+.connectionLabel {
+  font-size: var(--font-size-xs);
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+}
+
+/* ── Main Content ── */
+.main {
+  flex: 1;
+  padding-top: var(--header-height);
+  padding-bottom: var(--bottom-nav-height);
+}
+
+.content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md);
+}
+
+/* ── Bottom Navigation ── */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-height);
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 100;
+  box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 12px;
+  min-width: 56px;
+  min-height: 44px;
+  text-decoration: none;
+  color: var(--text-tertiary);
+  position: relative;
+  transition: color var(--transition-fast);
+  border-radius: var(--radius-sm);
+}
+
+.navItem:hover {
+  color: var(--green-primary);
+  background: var(--green-surface);
+}
+
+.navItemActive {
+  color: var(--green-primary);
+}
+
+.navIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.navLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.navIndicator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--green-primary);
+  border-radius: 0 0 3px 3px;
+}
+
+/* ── Desktop sidebar layout ── */
+@media (min-width: 1024px) {
+  .bottomNav {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    bottom: 0;
+    right: auto;
+    width: var(--sidebar-width);
+    height: auto;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: var(--space-lg);
+    gap: var(--space-xs);
+    border-top: none;
+    border-right: 1px solid var(--border-light);
+    box-shadow: 2px 0 16px rgba(0,0,0,0.04);
+  }
+
+  .navItem {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-sm);
+    width: calc(100% - var(--space-lg));
+    padding: 12px var(--space-md);
+    margin: 0 auto;
+    border-radius: var(--radius-sm);
+  }
+
+  .navLabel {
+    font-size: var(--font-size-sm);
+  }
+
+  .navIndicator {
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 24px;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .main {
+    padding-left: var(--sidebar-width);
+    padding-bottom: 0;
+  }
+}

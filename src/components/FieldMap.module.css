@@ -1,0 +1,37 @@
+.mapContainer {
+  height: 400px;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0,0,0,0.05);
+  position: relative;
+  z-index: 1; /* Keep leaflet controls below Next.js modals */
+}
+
+.map {
+  height: 100%;
+  width: 100%;
+}
+
+.popupContent {
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+.popupContent strong {
+  font-size: 16px;
+  color: #111;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.popupContent span {
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .mapContainer {
+    height: 300px;
+  }
+}
