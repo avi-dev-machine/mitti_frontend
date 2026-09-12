@@ -1,6 +1,6 @@
 /* ── MITTI PWA — API Client ── */
 
-const RAW_API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const RAW_API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://mitti-backend-e6ia.onrender.com';
 const API_BASE = RAW_API_BASE.replace(/\/+$/, '').replace(/\/api$/, '');
 
 async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
