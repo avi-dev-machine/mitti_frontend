@@ -61,7 +61,7 @@ export default function SensorsPage() {
   const chartData = history.map(r => ({
     time: new Date(r.captured_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     date: new Date(r.captured_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
-    value: (r as Record<string, unknown>)[activeSensor] as number,
+    value: (r as any)[activeSensor] as number,
   }));
 
   // Down-sample for chart performance
@@ -96,7 +96,7 @@ export default function SensorsPage() {
             {latest && (
               <div className={styles.currentGrid}>
                 {sensorConfigs.map(sensor => {
-                  const value = (latest as Record<string, unknown>)[sensor.key] as number;
+                  const value = (latest as any)[sensor.key] as number;
                   const freshness = getFreshness(latest.captured_at);
                   return (
                     <button
@@ -180,7 +180,7 @@ export default function SensorsPage() {
                           fontSize: '13px',
                           boxShadow: 'var(--shadow-md)',
                         }}
-                        formatter={(value: number) => [`${value}${activeConfig.unit}`, activeConfig.label]}
+                        formatter={(value: any) => [`${value}${activeConfig.unit}`, activeConfig.label] as any}
                       />
                       <Area
                         type="monotone"
