@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AppShell from '@/components/AppShell';
 import { api } from '@/lib/api';
@@ -10,7 +10,7 @@ import type { SensorReading, TimeRange } from '@/lib/types';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import styles from './sensors.module.css';
 
-export default function SensorsPage() {
+function SensorsContent() {
   const searchParams = useSearchParams();
   const deviceId = searchParams.get('device');
   const { devices, fetchDevices } = useDeviceStore();
@@ -202,5 +202,13 @@ export default function SensorsPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+export default function SensorsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SensorsContent />
+    </Suspense>
   );
 }

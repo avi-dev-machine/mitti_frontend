@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AppShell from '@/components/AppShell';
 import { api } from '@/lib/api';
@@ -11,7 +11,7 @@ import styles from './history.module.css';
 
 type Tab = 'advisories' | 'events';
 
-export default function HistoryPage() {
+function HistoryContent() {
   const searchParams = useSearchParams();
   const deviceId = searchParams.get('device');
   const { devices, fetchDevices } = useDeviceStore();
@@ -111,5 +111,13 @@ export default function HistoryPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+export default function HistoryPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HistoryContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AppShell from '@/components/AppShell';
 import { api } from '@/lib/api';
@@ -9,7 +9,7 @@ import { timeAgo, getSeverityLabel, formatDateTime } from '@/lib/utils';
 import type { Advisory } from '@/lib/types';
 import styles from './advisories.module.css';
 
-export default function AdvisoriesPage() {
+function AdvisoriesContent() {
   const searchParams = useSearchParams();
   const deviceId = searchParams.get('device');
   const { devices, fetchDevices } = useDeviceStore();
@@ -117,5 +117,13 @@ export default function AdvisoriesPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+export default function AdvisoriesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AdvisoriesContent />
+    </Suspense>
   );
 }
