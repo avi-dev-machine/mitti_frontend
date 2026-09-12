@@ -23,12 +23,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    if (!isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, router]);
+  }, []);
 
-  if (!mounted || !isAuthenticated) {
+  if (!mounted) {
     return null; // Or a loading spinner
   }
 
