@@ -65,6 +65,13 @@ export function translateAuthError(error: unknown): FriendlyError {
   }
 
   // ── Deployment is misconfigured, not the user ──
+  if (err.name === 'SupabaseConfigError') {
+    return {
+      message: err.message || 'MITTI is not connected to Supabase. Missing environment variables.',
+      isConfiguration: true,
+    };
+  }
+
   if (
     code === 'phone_provider_disabled' ||
     lower.includes('phone provider') ||
