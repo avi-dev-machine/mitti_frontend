@@ -1,76 +1,143 @@
 /* ── MITTI — Dashboard ──
  *
- * Answers, in order, the seven questions the refinement spec says a farmer
- * should be able to settle in a few seconds: which field, is it healthy, is
- * anything urgent, what are the readings, where is it, when was it updated,
- * and is that live or synced.
- *
- * Nothing here invents a number. Where the backend has no data the section
- * says so and offers the next step.
+ * Rewritten to fetch directly from Supabase for DEV-FARM_NODE, bypassing the 
+ * proxy API to ensure direct realtime connection and minimal failure points.
  */
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  AlertTriangle,
   Activity,
-  CheckCircle2,
+  AlertTriangle,
   ChevronRight,
   Gauge,
   Radio,
-  RefreshCw,
   ScanLine,
   Wheat,
+  MapPin,
+  Satellite
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import dynamic from 'next/dynamic';
 import AppShell from '@/components/AppShell';
-import MapPanel from '@/components/MapWrapper';
-import { AdvisoryCard } from '@/components/monitoring/AdvisoryCard';
 import { SensorGrid } from '@/components/monitoring/SensorCard';
 import { EmptyState, ErrorState, LoadingAnnouncement } from '@/components/ui/states';
 import { useSession } from '@/components/providers/SessionProvider';
-import { useDevices, useDeviceSummaries } from '@/lib/hooks/useDevices';
-import { useUiStore } from '@/lib/store';
-import { ApiError } from '@/lib/api';
-import type { Device, DeviceSummary, SeverityLevel } from '@/lib/types';
-import {
-  formatToday,
-  getFreshness,
-  getSeverityLabel,
-  getSeverityMessage,
-  greeting,
-  timeAgo,
-} from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
+import type { SeverityLevel } from '@/lib/types';
+import { formatToday, getSeverityLabel, greeting, timeAgo } from '@/lib/utils';
 import styles from './dashboard.module.css';
 
-const ALERT_TONE: Record<string, string> = {
-  green: styles.alertGreen,
-  yellow: styles.alertYellow,
-  orange: styles.alertOrange,
-  red: styles.alertRed,
-  grey: styles.alertGrey,
-};
+const FieldMap = dynamic(() => import('@/components/FieldMap'), {
+  ssr: false,
+  loading: () => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%', background: 'var(--color-bg-subtle)', borderRadius: 'var(--radius-xl)' }}>
+      <span>Loading map…</span>
+    </div>
+  ),
+});
+
+const DEVICE_ID = 'DEV-FARM_NODE';
 
 export function DashboardView() {
   const { displayName } = useSession();
-  const selectedDeviceId = useUiStore((s) => s.selectedDeviceId);
-  const selectDevice = useUiStore((s) => s.selectDevice);
+  const [device, setDevice] = useState<any>(null);
+  const [reading, setReading] = useState<any>(null);
+  const [advisory, setAdvisory] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const devicesQuery = useDevices();
-  const summariesQuery = useDeviceSummaries();
+  const supabase = createClient();
 
-  const devices = devicesQuery.data ?? [];
-  const summaries = summariesQuery.data ?? {};
-  const selected = devices.find((d) => d.device_id === selectedDeviceId) ?? null;
-  const summary: DeviceSummary | null = selectedDeviceId
-    ? (summaries[selectedDeviceId] ?? null)
-    : null;
+  useEffect(() => {
+    async function loadDashboard() {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Fetch Device
+        const { data: d, error: e1 } = await supabase
+          .from('devices')
+          .select('device_name, connection_status, last_sync_at, alert_severity, is_demo, field_name, crop')
+          .eq('device_id', DEVICE_ID)
+          .single();
+        
+        if (e1 && e1.code !== 'PGRST116') throw e1;
+        if (d) {
+          setDevice({ ...d, device_id: DEVICE_ID });
+        }
 
-  const isLoading = devicesQuery.isLoading || summariesQuery.isLoading;
-  const error = devicesQuery.error ?? summariesQuery.error;
+        // Fetch Latest Reading
+        const { data: r, error: e2 } = await supabase
+          .from('sensor_readings')
+          .select('soil_moisture_percent, temperature_c, humidity_percent, air_pressure_hpa, aqi, rain_density, captured_at, latitude, longitude')
+          .eq('device_id', DEVICE_ID)
+          .order('captured_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(); // maybeSingle doesn't throw PGRST116
+        
+        if (e2) throw e2;
+        setReading(r || null);
 
-  function refetchAll() {
-    void devicesQuery.refetch();
-    void summariesQuery.refetch();
+        // Fetch Advisory & Image
+        const { data: a, error: e3 } = await supabase
+          .from('image_metadata')
+          .select('image_url, analysis_summary, captured_at')
+          .eq('device_id', DEVICE_ID)
+          .order('captured_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        if (e3) throw e3;
+        setAdvisory(a || null);
+        
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Failed to load dashboard data.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadDashboard();
+    
+    // Realtime subscription for sensor_readings
+    const channel = supabase
+      .channel('dashboard-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings', filter: `device_id=eq.${DEVICE_ID}` }, (payload: any) => {
+        setReading(payload.new);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
+
+  if (isLoading) {
+    return (
+      <AppShell>
+        <div className={styles.page}>
+          <LoadingAnnouncement label="Loading your field data" />
+          <span className={`skeleton ${styles.skeletonHero}`} aria-hidden="true" />
+          <div className={styles.skeletonGrid} aria-hidden="true">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <span key={i} className={`skeleton ${styles.skeletonCard}`} />
+            ))}
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (error) {
+    return (
+      <AppShell>
+        <div className={styles.page}>
+          <ErrorState title="Could not load dashboard" description={error} onRetry={() => window.location.reload()} />
+        </div>
+      </AppShell>
+    );
   }
 
   return (
@@ -82,52 +149,45 @@ export function DashboardView() {
               {greeting()}, {displayName}
             </h1>
             <p className={styles.greetingLead}>
-              {devices.length > 0
-                ? 'Here is the latest from your fields.'
-                : 'Connect a MITTI device to start monitoring your field.'}
+              Here is the latest from your field.
             </p>
           </div>
           <p className={styles.today}>{formatToday()}</p>
         </header>
 
-        {isLoading ? (
-          <DashboardSkeleton />
-        ) : error ? (
-          <ErrorState
-            title={error instanceof ApiError ? undefined : 'This information could not be loaded'}
-            description={error instanceof ApiError ? error.friendlyMessage : undefined}
-            onRetry={refetchAll}
-          />
-        ) : devices.length === 0 ? (
+        {!device ? (
           <EmptyState
             icon={Radio}
-            title="No MITTI device linked yet"
-            description="Scan the NFC tag on your MITTI unit, or enter its device ID, to start seeing your field data here."
-            action={
-              <Link href="/scan" className="btn btn-primary">
-                <ScanLine size={16} aria-hidden="true" />
-                Add a device
-              </Link>
-            }
+            title="Farm Node Not Found"
+            description="We could not find the device DEV-FARM_NODE in your account."
           />
         ) : (
           <>
-            {selected && <HeroCard device={selected} summary={summary} />}
-            {selected && <AlertCard device={selected} summary={summary} />}
+            <HeroSection device={device} />
 
-            <SensorSection summary={summary} deviceId={selected?.device_id ?? null} />
+            <section className={styles.section} aria-label="Sensor readings">
+              <div className={styles.sectionHead}>
+                <h2 className={styles.sectionTitle}>
+                  <Gauge size={18} aria-hidden="true" />
+                  Latest readings
+                </h2>
+              </div>
+              {reading ? (
+                <SensorGrid reading={reading as any} />
+              ) : (
+                <EmptyState
+                  inline
+                  icon={Gauge}
+                  title="No sensor readings yet"
+                  description="This device has not uploaded any measurements."
+                />
+              )}
+            </section>
 
             <div className={styles.split}>
-              <MapPanel
-                devices={devices}
-                selectedDeviceId={selectedDeviceId}
-                onSelectDevice={selectDevice}
-                title="Your fields"
-              />
-              <ActivitySection summary={summary} />
+              <MapSection reading={reading} device={device} />
+              <AdvisorySection advisory={advisory} />
             </div>
-
-            <AdvisorySection summary={summary} deviceId={selected?.device_id ?? null} />
           </>
         )}
       </div>
@@ -135,11 +195,8 @@ export function DashboardView() {
   );
 }
 
-/* ── Hero: the device in focus ── */
-function HeroCard({ device, summary }: { device: Device; summary: DeviceSummary | null }) {
+function HeroSection({ device }: { device: any }) {
   const severity = (device.alert_severity ?? 'grey') as SeverityLevel;
-  const health = summary?.health;
-  const sync = summary?.sync_status;
 
   return (
     <section className={styles.hero} aria-label="Selected device">
@@ -152,11 +209,7 @@ function HeroCard({ device, summary }: { device: Device; summary: DeviceSummary 
             {device.device_id}
             {device.is_demo && <span className={styles.demoPill}>Demo data</span>}
           </p>
-          <h2 className={styles.heroName}>{device.device_name}</h2>
-          <p className={styles.heroField}>
-            {device.field_name || 'Field not named'}
-            {device.crop ? ` · ${device.crop}` : ''}
-          </p>
+          <h2 className={styles.heroName}>{device.device_name || 'FARM NODE'}</h2>
         </div>
 
         <span className={styles.heroStatus}>
@@ -168,263 +221,122 @@ function HeroCard({ device, summary }: { device: Device; summary: DeviceSummary 
       <div className={styles.heroFacts}>
         <div>
           <p className={styles.heroFactLabel}>Connection</p>
-          <p className={styles.heroFactValue}>
-            {device.connection_status === 'live'
-              ? 'Live'
-              : device.connection_status === 'synced'
-                ? 'Synced'
-                : device.connection_status === 'cached'
-                  ? 'Cached'
-                  : 'Offline'}
+          <p className={styles.heroFactValue} style={{ textTransform: 'capitalize' }}>
+            {device.connection_status || 'Offline'}
           </p>
         </div>
         <div>
           <p className={styles.heroFactLabel}>Last sync</p>
           <p className={styles.heroFactValue}>{timeAgo(device.last_sync_at)}</p>
         </div>
-        <div>
-          <p className={styles.heroFactLabel}>Device health</p>
-          <p className={styles.heroFactValue}>
-            {health?.overall_status
-              ? health.overall_status.charAt(0).toUpperCase() + health.overall_status.slice(1)
-              : 'Not reported'}
-          </p>
-        </div>
-        <div>
-          <p className={styles.heroFactLabel}>Pending uploads</p>
-          <p className={styles.heroFactValue}>
-            {typeof sync?.pending_records === 'number' ? sync.pending_records : '—'}
-          </p>
-        </div>
-      </div>
-
-      <div className={styles.heroActions}>
-        <Link href={`/devices/${encodeURIComponent(device.device_id)}`} className={styles.heroButton}>
-          Device details
-          <ChevronRight size={15} aria-hidden="true" />
-        </Link>
-        <Link href="/sensors" className={styles.heroButton}>
-          <Gauge size={15} aria-hidden="true" />
-          Sensor trends
-        </Link>
       </div>
     </section>
   );
 }
 
-/* ── The one thing that needs attention ── */
-function AlertCard({ device, summary }: { device: Device; summary: DeviceSummary | null }) {
-  const severity = (device.alert_severity ?? 'grey') as SeverityLevel;
-  const advisory = summary?.latest_advisory;
-  const needsAttention = severity === 'red' || severity === 'orange';
+function MapSection({ reading, device }: { reading: any, device: any }) {
+  const [layer, setLayer] = useState<'standard' | 'satellite'>('satellite');
+  
+  const mapDevice = {
+    ...device,
+    latitude: reading?.latitude,
+    longitude: reading?.longitude,
+  };
 
   return (
-    <section
-      className={`${styles.alert} ${ALERT_TONE[severity] ?? styles.alertGrey}`}
-      aria-label="Current field status"
-    >
-      <span className={styles.alertIcon}>
-        {needsAttention ? (
-          <AlertTriangle size={20} aria-hidden="true" />
-        ) : severity === 'green' ? (
-          <CheckCircle2 size={20} aria-hidden="true" />
+    <section className="card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }} aria-label="Field location">
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h2 className={styles.sectionTitle} style={{ margin: 0 }}>
+          <MapPin size={18} aria-hidden="true" />
+          Your fields
+        </h2>
+        <div style={{ display: 'flex', gap: 'var(--space-2xs)' }} role="radiogroup" aria-label="Map layer">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={layer === 'standard'}
+            className={`btn btn-secondary ${layer === 'standard' ? 'active' : ''}`}
+            onClick={() => setLayer('standard')}
+          >
+            Map
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={layer === 'satellite'}
+            className={`btn btn-secondary ${layer === 'satellite' ? 'active' : ''}`}
+            onClick={() => setLayer('satellite')}
+          >
+            <Satellite size={14} aria-hidden="true" style={{ display: 'inline', verticalAlign: -2, marginRight: 4 }} />
+            Satellite
+          </button>
+        </div>
+      </header>
+
+      <div style={{ position: 'relative', height: 320, borderRadius: 'var(--radius-xl)', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+        {reading?.latitude && reading?.longitude ? (
+          <FieldMap
+            devices={[mapDevice]}
+            selectedDeviceId={device.device_id}
+            onSelectDevice={() => {}}
+            layer={layer}
+          />
         ) : (
-          <Activity size={20} aria-hidden="true" />
+          <EmptyState
+            inline
+            icon={MapPin}
+            title="Location unavailable"
+            description="No GPS coordinates received from the device."
+          />
         )}
-      </span>
-
-      <div className={styles.alertBody}>
-        <p className={styles.alertTitle}>{getSeverityLabel(severity)}</p>
-        <p className={styles.alertText}>
-          {advisory?.primary_problem ?? getSeverityMessage(severity)}
+      </div>
+      
+      {reading?.latitude && reading?.longitude && (
+        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', margin: 0, padding: '0 var(--space-sm)' }}>
+          {reading.latitude.toFixed(6)}, {reading.longitude.toFixed(6)}
         </p>
-      </div>
-
-      {advisory && (
-        <Link href="/advisories" className={styles.alertLink}>
-          Read the advisory
-          <ChevronRight size={14} aria-hidden="true" style={{ display: 'inline', verticalAlign: -2 }} />
-        </Link>
       )}
     </section>
   );
 }
 
-/* ── Sensors ── */
-function SensorSection({
-  summary,
-  deviceId,
-}: {
-  summary: DeviceSummary | null;
-  deviceId: string | null;
-}) {
-  const reading = summary?.latest_sensor ?? null;
-  const freshness = getFreshness(reading?.captured_at ?? null);
-
+function AdvisorySection({ advisory }: { advisory: any }) {
   return (
-    <section className={styles.section} aria-label="Sensor readings">
-      <div className={styles.sectionHead}>
-        <h2 className={styles.sectionTitle}>
-          <Gauge size={18} aria-hidden="true" />
-          Latest readings
-        </h2>
-        <span
-          className={`${styles.sectionMeta} ${
-            freshness.status === 'stale' ? styles.sectionMetaStale : ''
-          }`}
-        >
-          {freshness.label}
-        </span>
-        {deviceId && (
-          <Link href="/sensors" className={styles.sectionLink}>
-            View trends
-          </Link>
-        )}
-      </div>
-
-      {reading ? (
-        <SensorGrid reading={reading} />
-      ) : (
-        <EmptyState
-          inline
-          icon={Gauge}
-          title="No sensor readings yet"
-          description="This device has not uploaded any measurements. Readings appear here once it syncs."
-        />
-      )}
-    </section>
-  );
-}
-
-/* ── Latest advisory ── */
-function AdvisorySection({
-  summary,
-  deviceId,
-}: {
-  summary: DeviceSummary | null;
-  deviceId: string | null;
-}) {
-  const advisory = summary?.latest_advisory ?? null;
-
-  return (
-    <section className={styles.section} aria-label="Latest advisory">
-      <div className={styles.sectionHead}>
-        <h2 className={styles.sectionTitle}>
+    <section className="card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }} aria-label="Latest advisory">
+      <header>
+        <h2 className={styles.sectionTitle} style={{ margin: 0 }}>
           <Wheat size={18} aria-hidden="true" />
-          Latest advisory
+          Crop Health & Advisories
         </h2>
-      </div>
+      </header>
 
       {advisory ? (
-        <AdvisoryCard advisory={advisory} href="/advisories" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+          {advisory.image_url && (
+            <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={advisory.image_url} alt="Crop Analysis" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            </div>
+          )}
+          
+          {advisory.analysis_summary && (
+            <div style={{ color: 'var(--color-text)', fontSize: 'var(--text-sm)', lineHeight: 1.6 }}>
+              <ReactMarkdown>{advisory.analysis_summary}</ReactMarkdown>
+            </div>
+          )}
+          
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+            Captured {timeAgo(advisory.captured_at)}
+          </div>
+        </div>
       ) : (
         <EmptyState
           inline
           icon={Wheat}
-          title="No advisory is available for this device."
-          description={
-            deviceId
-              ? 'An advisory appears after an assessment. Press the button on your MITTI unit to start one.'
-              : 'Select a device to see its latest advisory.'
-          }
+          title="No advisory available"
+          description="Analysis will appear here once an assessment is completed."
         />
       )}
     </section>
-  );
-}
-
-/* ── Recent activity ──
- * Built from the timestamps the backend already returns, so every row is a
- * real event. No synthetic history is generated to make the panel look busy. */
-function ActivitySection({ summary }: { summary: DeviceSummary | null }) {
-  const events: Array<{ id: string; icon: typeof Activity; title: string; meta: string }> = [];
-
-  if (summary?.latest_advisory) {
-    events.push({
-      id: 'advisory',
-      icon: Wheat,
-      title: summary.latest_advisory.primary_problem || 'New advisory published',
-      meta: `Advisory · ${timeAgo(summary.latest_advisory.created_at)}`,
-    });
-  }
-
-  if (summary?.latest_sensor) {
-    events.push({
-      id: 'sensor',
-      icon: Gauge,
-      title: 'Sensor readings uploaded',
-      meta: `Measurements · ${timeAgo(summary.latest_sensor.captured_at)}`,
-    });
-  }
-
-  if (summary?.health) {
-    events.push({
-      id: 'health',
-      icon: Activity,
-      title: `Device reported ${summary.health.overall_status}`,
-      meta: `Health check · ${timeAgo(summary.health.last_checked_at)}`,
-    });
-  }
-
-  if (summary?.sync_status?.last_upload_at) {
-    events.push({
-      id: 'sync',
-      icon: RefreshCw,
-      title:
-        summary.sync_status.status === 'error'
-          ? 'Sync reported a problem'
-          : 'Synced with the cloud',
-      meta: `Sync · ${timeAgo(summary.sync_status.last_upload_at)}`,
-    });
-  }
-
-  return (
-    <section className={`card ${styles.section}`} aria-label="Recent activity">
-      <div className={styles.sectionHead}>
-        <h2 className={styles.sectionTitle}>
-          <Activity size={18} aria-hidden="true" />
-          Recent activity
-        </h2>
-      </div>
-
-      {events.length > 0 ? (
-        <ul className={styles.timeline}>
-          {events.map(({ id, icon: Icon, title, meta }) => (
-            <li key={id} className={styles.event}>
-              <span className={styles.eventMarker}>
-                <Icon size={15} aria-hidden="true" />
-              </span>
-              <div className={styles.eventBody}>
-                <p className={styles.eventTitle}>{title}</p>
-                <p className={styles.eventMeta}>{meta}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState
-          inline
-          icon={Activity}
-          title="Nothing has happened yet"
-          description="Activity from your device appears here once it starts reporting."
-        />
-      )}
-    </section>
-  );
-}
-
-/* ── Loading ── */
-function DashboardSkeleton() {
-  return (
-    <div className={styles.page}>
-      <LoadingAnnouncement label="Loading your field data" />
-      <span className={`skeleton ${styles.skeletonHero}`} aria-hidden="true" />
-      <span className={`skeleton ${styles.skeletonAlert}`} aria-hidden="true" />
-      <div className={styles.skeletonGrid} aria-hidden="true">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <span key={i} className={`skeleton ${styles.skeletonCard}`} />
-        ))}
-      </div>
-    </div>
   );
 }
