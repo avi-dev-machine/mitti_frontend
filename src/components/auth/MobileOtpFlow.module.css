@@ -1,0 +1,102 @@
+/* ── MITTI — Mobile OTP flow ── */
+
+.form { display: flex; flex-direction: column; gap: var(--space-5); }
+
+.sentTo {
+  text-align: center;
+  font-size: var(--text-base);
+  color: var(--text-muted);
+}
+
+.sentToNumber {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-lg);
+  font-weight: 650;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.resendRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  color: var(--text-muted);
+}
+
+.countdown {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--green-dark);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.linkButton:hover:not(:disabled) { background: var(--green-surface); }
+.linkButton:disabled { color: var(--text-muted); font-weight: 500; }
+
+.changeNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-muted);
+  border-radius: var(--radius-xs);
+  transition: color var(--transition-fast);
+}
+.changeNumber:hover { color: var(--text-primary); }
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) 0;
+  text-align: center;
+}
+
+.successRing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--healthy-surface);
+  color: var(--green-primary);
+  animation: mitti-scale-in var(--transition-base) both;
+}
+
+.successTitle { font-size: var(--text-xl); font-weight: 650; }
+.successBody { font-size: var(--text-base); color: var(--text-muted); }

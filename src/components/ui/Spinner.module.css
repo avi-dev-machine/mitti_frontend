@@ -1,0 +1,10 @@
+/* ── MITTI — Spinner ── */
+.spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border-style: solid;
+  border-color: currentColor;
+  border-right-color: transparent;
+  animation: mitti-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}

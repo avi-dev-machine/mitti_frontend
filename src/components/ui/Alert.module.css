@@ -1,0 +1,37 @@
+/* ── MITTI — Inline alert ── */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: var(--text-base);
+  line-height: var(--leading-snug);
+  animation: mitti-fade-in var(--transition-base) both;
+}
+
+.icon { flex-shrink: 0; margin-top: 1px; }
+.body { flex: 1; min-width: 0; }
+.title { font-weight: 650; margin-bottom: 2px; }
+.actions { margin-top: var(--space-2); display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.error   { background: var(--critical-surface); border-color: #F2CFCF; color: var(--critical-text); }
+.warning { background: var(--warning-surface);  border-color: #EFDDB2; color: var(--warning-text); }
+.success { background: var(--healthy-surface);  border-color: #C4DEC6; color: var(--green-dark); }
+.info    { background: var(--sky-surface);      border-color: #C6DCF2; color: #0F4C94; }
+
+.dismiss {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: -2px -4px 0 0;
+  border-radius: var(--radius-xs);
+  color: currentColor;
+  opacity: 0.65;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+}
+.dismiss:hover { opacity: 1; background: rgba(0, 0, 0, 0.05); }

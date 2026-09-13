@@ -1,0 +1,74 @@
+/* ── MITTI — Empty, error and loading states ── */
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-5);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.stateInline {
+  padding: var(--space-6) var(--space-4);
+  background: transparent;
+  border: 1px dashed var(--border-default);
+}
+
+.iconRing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-1);
+}
+
+.iconNeutral  { background: var(--bg-surface-sunken); color: var(--text-muted); }
+.iconPositive { background: var(--healthy-surface);   color: var(--green-primary); }
+.iconWarning  { background: var(--warning-surface);   color: var(--warning-text); }
+.iconError    { background: var(--critical-surface);  color: var(--critical-red); }
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.description {
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  max-width: 42ch;
+  line-height: var(--leading-normal);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+
+/* ── Skeletons ── */
+.skelStack { display: flex; flex-direction: column; gap: var(--space-3); }
+.skelRow   { display: flex; gap: var(--space-3); align-items: center; }
+
+.skelCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skelLine { height: 12px; border-radius: var(--radius-full); }
+.skelTitle { height: 18px; width: 48%; border-radius: var(--radius-full); }
+.skelChip { height: 22px; width: 82px; border-radius: var(--radius-full); }
+.skelBlock { height: 100%; width: 100%; border-radius: var(--radius-md); }

@@ -1,0 +1,25 @@
+/* ── MITTI — Set a new password ── */
+.form { display: flex; flex-direction: column; gap: var(--space-5); }
+
+.centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6) 0;
+  color: var(--green-primary);
+}
+
+.successRing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--healthy-surface);
+  color: var(--green-primary);
+  animation: mitti-scale-in var(--transition-base) both;
+}
+
+.successBody { font-size: var(--text-base); color: var(--text-muted); }

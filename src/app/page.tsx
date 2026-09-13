@@ -1,34 +1,19 @@
-'use client';
+/* ── MITTI — / ──
+ *
+ * The entry point resolves the session on the server and redirects. Doing it
+ * here rather than with a timed client-side splash means no one watches a logo
+ * for two seconds, and a signed-out visitor never sees a frame of the app.
+ */
+import { redirect } from 'next/navigation';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import styles from './splash.module.css';
+// Depends on the request's cookies, so it can never be prerendered.
+export const dynamic = 'force-dynamic';
 
-export default function SplashPage() {
-  const router = useRouter();
+export default async function RootPage() {
+  if (!isSupabaseConfigured()) redirect('/login');
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push('/dashboard');
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [router]);
-
-  return (
-    <div className={styles.splash}>
-      <div className={styles.content}>
-        <div className={styles.logoContainer}>
-          <span className={styles.logoEmoji}>🌱</span>
-          <h1 className={styles.title}>MITTI</h1>
-        </div>
-        <p className={styles.tagline}>Crop intelligence rooted in Indian soil.</p>
-        <div className={styles.loader}>
-          <div className={styles.loaderBar} />
-        </div>
-      </div>
-      <footer className={styles.footer}>
-        <p>Smart Agriculture • IoT Monitoring</p>
-      </footer>
-    </div>
-  );
+  const user = await getAuthenticatedUser().catch(() => null);
+  redirect(user ? '/dashboard' : '/login');
 }

@@ -1,69 +1,50 @@
-/* ── MITTI PWA — Zustand Device Store ── */
+/* ── MITTI — Client UI state ──
+ *
+ * Only state the user owns lives here: which device they are looking at, and
+ * whether the sidebar is collapsed. Server data belongs to TanStack Query, so
+ * there is one source of truth for anything that came from the API.
+ *
+ * The selection is persisted so reopening the app returns to the field the
+ * user was last looking at — an operator walking between plots should not have
+ * to reselect every time.
+ */
+'use client';
+
 import { create } from 'zustand';
-import type { Device, DeviceSummary } from './types';
-import { api } from './api';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-interface DeviceState {
-  devices: Device[];
-  selectedDevice: Device | null;
-  selectedSummary: DeviceSummary | null;
-  loading: boolean;
-  error: string | null;
+interface UiState {
+  /** device_id of the device in focus, or null for "all fields". */
+  selectedDeviceId: string | null;
+  sidebarCollapsed: boolean;
 
-  fetchDevices: () => Promise<void>;
-  selectDevice: (deviceId: string) => Promise<void>;
-  clearSelection: () => void;
+  selectDevice: (deviceId: string | null) => void;
+  toggleSidebar: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  /** Wipes user-specific client state. Called on sign-out. */
+  clear: () => void;
 }
 
-export const useDeviceStore = create<DeviceState>((set) => ({
-  devices: [],
-  selectedDevice: null,
-  selectedSummary: null,
-  loading: false,
-  error: null,
+export const useUiStore = create<UiState>()(
+  persist(
+    (set) => ({
+      selectedDeviceId: null,
+      sidebarCollapsed: false,
 
-  fetchDevices: async () => {
-    set({ loading: true, error: null });
-    try {
-      const data = await api.getDevices();
-      set({ devices: data.devices, loading: false });
-    } catch (e) {
-      set({ error: (e as Error).message, loading: false });
-    }
-  },
-
-  selectDevice: async (deviceId: string) => {
-    set({ loading: true, error: null });
-    try {
-      const summary = await api.getDeviceSummary(deviceId);
-      set({
-        selectedDevice: summary.device,
-        selectedSummary: summary,
-        loading: false,
-      });
-    } catch (e) {
-      set({ error: (e as Error).message, loading: false });
-    }
-  },
-
-  clearSelection: () => {
-    set({ selectedDevice: null, selectedSummary: null });
-  },
-}));
-
-interface AuthState {
-  isAuthenticated: boolean;
-  user: any | null;
-  token: string | null;
-  setAuth: (user: any, token: string) => void;
-  logout: () => void;
-}
-
-export const useAuthStore = create<AuthState>((set) => ({
-  isAuthenticated: false,
-  user: null,
-  token: null,
-  setAuth: (user, token) => set({ isAuthenticated: true, user, token }),
-  logout: () => set({ isAuthenticated: false, user: null, token: null }),
-}));
-
+      selectDevice: (deviceId) => set({ selectedDeviceId: deviceId }),
+      toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+      clear: () => set({ selectedDeviceId: null }),
+    }),
+    {
+      name: 'mitti.ui',
+      storage: createJSONStorage(() => localStorage),
+      // A device id is not sensitive, but nothing else here should be
+      // persisted, so the allowed keys are listed explicitly.
+      partialize: (state) => ({
+        selectedDeviceId: state.selectedDeviceId,
+        sidebarCollapsed: state.sidebarCollapsed,
+      }),
+    },
+  ),
+);

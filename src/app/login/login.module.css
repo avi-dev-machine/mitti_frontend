@@ -1,192 +1,52 @@
-.container {
-  display: flex;
-  min-height: 100vh;
-  background: var(--background);
-  font-family: var(--font-sans);
-}
+/* ── MITTI — Sign-in page ── */
 
-.leftPanel {
-  flex: 1;
-  background: linear-gradient(135deg, var(--deep-green), var(--primary-green));
-  color: white;
-  padding: 4rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
+.form { display: flex; flex-direction: column; gap: var(--space-5); }
 
-.logo {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: auto;
+.forgotRow { display: flex; justify-content: flex-end; margin-top: calc(var(--space-2) * -1); }
+
+.forgotLink {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 6px 2px;
+  border-radius: var(--radius-xs);
+}
+.forgotLink:hover { color: var(--green-dark); }
+
+.divider {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
 }
-
-.heroTitle {
-  font-size: 3.5rem;
-  font-weight: 600;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
-  max-width: 500px;
-}
-
-.heroText {
-  font-size: 1.25rem;
-  line-height: 1.6;
-  opacity: 0.9;
-  max-width: 450px;
-  margin-bottom: auto;
-}
-
-.rightPanel {
+.divider::before,
+.divider::after {
+  content: '';
   flex: 1;
-  display: flex;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.switchButton {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-}
-
-.loginCard {
-  background: var(--card-bg);
-  padding: 3rem;
-  border-radius: 24px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  gap: var(--space-2);
   width: 100%;
-  max-width: 440px;
-  border: 1px solid rgba(0,0,0,0.05);
-}
-
-.cardHeader {
-  margin-bottom: 2.5rem;
-}
-
-.cardHeader h2 {
-  font-size: 1.75rem;
+  min-height: 48px;
+  padding: 0 var(--space-5);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-base);
   font-weight: 600;
-  color: #111;
-  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
 }
-
-.cardHeader p {
-  color: var(--neutral-grey);
-  font-size: 1rem;
-}
-
-.errorBanner {
-  background: #FEF2F2;
-  color: var(--critical-red);
-  padding: 1rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #FEE2E2;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.inputGroup label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
-}
-
-.inputGroup input {
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px solid #E5E7EB;
-  font-size: 1.1rem;
-  transition: all 0.2s ease;
-  background: #F9FAFB;
-}
-
-.inputGroup input:focus {
-  outline: none;
-  border-color: var(--primary-green);
-  background: white;
-  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
-}
-
-.helperText {
-  font-size: 0.85rem;
-  color: var(--neutral-grey);
-}
-
-.submitBtn {
-  background: var(--primary-green);
-  color: white;
-  border: none;
-  padding: 1rem;
-  border-radius: 12px;
-  font-size: 1.05rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-}
-
-.submitBtn:hover:not(:disabled) {
-  background: var(--deep-green);
-  transform: translateY(-1px);
-}
-
-.submitBtn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.backBtn {
-  background: transparent;
-  border: none;
-  color: var(--neutral-grey);
-  font-size: 0.95rem;
-  cursor: pointer;
-  text-decoration: underline;
-  margin-top: -0.5rem;
-}
-
-.backBtn:hover {
-  color: #333;
-}
-
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-@media (max-width: 900px) {
-  .leftPanel {
-    display: none;
-  }
-  
-  .rightPanel {
-    padding: 1rem;
-  }
-  
-  .loginCard {
-    padding: 2rem;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-  }
+.switchButton:hover {
+  background: var(--green-surface);
+  border-color: var(--green-light);
+  color: var(--green-dark);
 }

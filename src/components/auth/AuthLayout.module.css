@@ -1,0 +1,227 @@
+/* ── MITTI — Authentication shell ──
+   Two panels on desktop: a calm brand field on the left, the form on the
+   right. On mobile the brand panel collapses to a compact header so the form
+   is reachable without scrolling. */
+
+.shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100dvh;
+  background: var(--bg-base);
+}
+
+/* ── Brand panel ── */
+.brand {
+  position: relative;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-12) var(--space-10);
+  background: var(--green-deep);
+  color: var(--text-inverse);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Contour lines, like a field survey map. Low opacity so it reads as texture
+   rather than decoration competing with the text. */
+.brandTexture {
+  position: absolute;
+  inset: -10%;
+  z-index: -2;
+  opacity: 0.16;
+  background-repeat: repeat;
+}
+
+/* A single soft light source, warmer at the top-left. */
+.brandGlow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    120% 90% at 12% 8%,
+    rgba(76, 175, 80, 0.32) 0%,
+    rgba(16, 61, 20, 0) 62%
+  );
+}
+
+.brandTop { display: flex; flex-direction: column; gap: var(--space-10); }
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.wordmarkMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.brandHeadline {
+  font-size: var(--text-4xl);
+  font-weight: 680;
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+  max-width: 14ch;
+}
+
+.brandLead {
+  margin-top: var(--space-5);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: rgba(244, 248, 243, 0.76);
+  max-width: 38ch;
+}
+
+.brandPoints {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  list-style: none;
+  padding: 0;
+}
+
+.brandPoint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--text-base);
+  color: rgba(244, 248, 243, 0.82);
+}
+
+.brandPointIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  background: rgba(255, 255, 255, 0.1);
+  color: #A5D6A7;
+}
+
+.brandFoot {
+  font-size: var(--text-sm);
+  color: rgba(244, 248, 243, 0.5);
+}
+
+/* ── Form panel ── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4) var(--space-10);
+  min-height: 100dvh;
+}
+
+.mobileBrand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  color: var(--green-dark);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mobileBrandMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--green-surface);
+  color: var(--green-primary);
+}
+
+.card {
+  width: 100%;
+  max-width: 424px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  animation: mitti-fade-in var(--transition-slow) both;
+}
+
+.header { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  margin-bottom: var(--space-2);
+  padding: 6px 10px 6px 6px;
+  margin-left: -6px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.back:hover { color: var(--text-primary); background: var(--bg-surface-sunken); text-decoration: none; }
+
+.title {
+  font-size: var(--text-3xl);
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: var(--text-md);
+  color: var(--text-muted);
+  line-height: var(--leading-normal);
+}
+
+.footer {
+  text-align: center;
+  font-size: var(--text-base);
+  color: var(--text-muted);
+}
+
+/* Applies to the link in whatever footer a page passes in, so every auth
+   screen gets the same treatment without repeating a class name. */
+.footer a {
+  font-weight: 600;
+  color: var(--green-dark);
+}
+.footer a:hover { color: var(--green-primary); }
+
+.legal a { color: var(--green-dark); font-weight: 600; }
+
+.legal {
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: var(--leading-snug);
+  max-width: 36ch;
+  margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .brand { display: flex; }
+  .mobileBrand { display: none; }
+  .panel { padding: var(--space-10); }
+}
+
+@media (min-width: 1280px) {
+  .shell { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+}

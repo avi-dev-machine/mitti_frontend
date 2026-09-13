@@ -1,29 +1,149 @@
-.page { display: flex; flex-direction: column; gap: var(--space-lg); }
-.pageHeader { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md); }
-.pageTitle { font-size: var(--font-size-3xl); font-weight: 800; color: var(--green-dark); }
-.deviceSelect { padding: 10px 16px; border-radius: var(--radius-sm); border: 2px solid var(--border-light); font-size: var(--font-size-sm); font-weight: 600; background: var(--bg-card); color: var(--text-primary); cursor: pointer; min-height: 44px; }
+/* ── MITTI — History ── */
 
-.tabs { display: flex; gap: var(--space-xs); background: var(--bg-card); border-radius: var(--radius-md); padding: 4px; box-shadow: var(--shadow-sm); }
-.tab { padding: 10px 20px; border-radius: var(--radius-sm); font-size: var(--font-size-sm); font-weight: 600; color: var(--text-tertiary); background: transparent; transition: all var(--transition-fast); min-height: 44px; }
-.tab:hover { background: var(--neutral-grey-surface); }
-.tabActive { background: var(--green-primary); color: white; box-shadow: 0 2px 8px rgba(46,125,50,0.3); }
+.page { display: flex; flex-direction: column; gap: var(--space-5); }
 
-.loading { display: flex; flex-direction: column; align-items: center; gap: var(--space-md); padding: var(--space-2xl); color: var(--text-tertiary); }
-.spinner { width: 40px; height: 40px; border: 4px solid var(--border-light); border-top-color: var(--green-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-.empty { text-align: center; padding: var(--space-2xl); color: var(--text-tertiary); font-style: italic; }
+.title { font-size: var(--text-3xl); font-weight: 680; letter-spacing: -0.022em; }
+.lead { margin-top: var(--space-1); font-size: var(--text-md); color: var(--text-muted); }
 
-.list { display: flex; flex-direction: column; gap: var(--space-sm); }
-.historyItem {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: var(--space-md) var(--space-lg); background: var(--bg-card);
-  border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
-  animation: slideUp 0.3s ease-out both; gap: var(--space-md);
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-.historyItem:hover { box-shadow: var(--shadow-md); }
+.tabs::-webkit-scrollbar { display: none; }
 
-.itemLeft { display: flex; align-items: flex-start; gap: var(--space-sm); flex: 1; min-width: 0; }
-.itemTitle { font-size: var(--font-size-sm); font-weight: 700; color: var(--text-primary); }
-.itemSub { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
+.tab {
+  position: relative;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+.tab:hover { color: var(--text-primary); }
+.tabActive { color: var(--green-dark); }
+.tabActive::after {
+  content: '';
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: -1px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--green-primary);
+}
 
-.itemRight { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.itemTime { font-size: 11px; color: var(--text-tertiary); }
+.panel { display: flex; flex-direction: column; gap: var(--space-4); }
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--sky-surface);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-base);
+  color: #0F4C94;
+  line-height: var(--leading-snug);
+}
+.noteIcon { flex-shrink: 0; margin-top: 1px; }
+
+/* ── Assessment records ── */
+.assessmentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.assessment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.assessmentMediaWrap {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-surface-sunken);
+}
+
+.assessmentImage { width: 100%; height: 100%; object-fit: cover; }
+
+.assessmentPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.assessmentHead { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.assessmentTime { margin-left: auto; font-size: var(--text-sm); color: var(--text-muted); }
+
+.assessmentLabel {
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.assessmentText { font-size: var(--text-base); color: var(--text-secondary); line-height: var(--leading-normal); }
+
+/* ── Events ── */
+.eventList { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+
+.eventRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.eventRow:last-child { border-bottom: none; }
+
+.eventIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-sunken);
+  color: var(--text-secondary);
+}
+
+.eventBody { flex: 1; min-width: 0; }
+.eventTitle { font-size: var(--text-base); font-weight: 620; color: var(--text-primary); }
+.eventMeta { font-size: var(--text-sm); color: var(--text-muted); margin-top: 2px; }
+.eventTime { font-size: var(--text-sm); color: var(--text-muted); white-space: nowrap; }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+.pageInfo { font-size: var(--text-base); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 480px) {
+  .tab { padding-inline: var(--space-3); font-size: var(--text-sm); }
+  .eventTime { display: none; }
+}

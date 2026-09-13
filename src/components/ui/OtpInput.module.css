@@ -1,0 +1,72 @@
+/* ── MITTI — One-time-code input ── */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.boxes {
+  display: flex;
+  gap: var(--space-2);
+  direction: ltr;
+}
+
+.box {
+  width: 46px;
+  height: 56px;
+  text-align: center;
+  font-size: var(--text-xl);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast),
+    background var(--transition-fast);
+  /* Strip the spinner Chrome and Firefox add to number-like inputs. */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.box::-webkit-outer-spin-button,
+.box::-webkit-inner-spin-button { appearance: none; margin: 0; }
+
+.box:hover:not(:disabled):not(:focus) { border-color: var(--border-strong); }
+
+.box:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus);
+}
+
+.box[data-filled='true'] { border-color: var(--green-light); background: var(--green-surface); }
+
+.box:disabled { background: var(--bg-surface-sunken); color: var(--text-muted); cursor: not-allowed; }
+
+.boxError { border-color: var(--critical-red); }
+.boxError:focus { border-color: var(--critical-red); box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.2); }
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--critical-text);
+  text-align: center;
+}
+
+/* Below ~340px six 46px boxes would overflow, so they shrink rather than
+   scroll. Height stays above the 44px touch minimum. */
+@media (max-width: 380px) {
+  .box { width: 42px; height: 52px; font-size: var(--text-lg); }
+  .boxes { gap: 6px; }
+}
+
+@media (max-width: 340px) {
+  .box { width: 38px; height: 48px; }
+  .boxes { gap: 4px; }
+}

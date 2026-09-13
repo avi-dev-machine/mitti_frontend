@@ -1,0 +1,38 @@
+/* ── MITTI — Connection banner ── */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  line-height: var(--leading-snug);
+  border-bottom: 1px solid transparent;
+  animation: mitti-fade-in var(--transition-base) both;
+}
+
+.offline {
+  background: var(--neutral-surface);
+  border-bottom-color: var(--border-default);
+  color: var(--text-secondary);
+}
+
+.degraded {
+  background: var(--warning-surface);
+  border-bottom-color: #EFDDB2;
+  color: var(--warning-text);
+}
+
+.icon { flex-shrink: 0; }
+
+.body { flex: 1; min-width: 0; }
+.title { font-weight: 650; }
+.detail { color: inherit; opacity: 0.85; }
+
+@media (min-width: 640px) {
+  .banner { padding-inline: var(--space-6); }
+  .body { display: flex; align-items: baseline; gap: var(--space-2); }
+}
+
+@media (min-width: 1024px) {
+  .banner { padding-inline: var(--space-8); }
+}

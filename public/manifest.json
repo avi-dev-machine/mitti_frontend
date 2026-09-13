@@ -1,31 +1,37 @@
 {
   "name": "MITTI — Crop Intelligence",
   "short_name": "MITTI",
-  "description": "Crop intelligence rooted in Indian soil. Monitor your farm devices, view sensor data, and get crop advisories.",
+  "description": "Crop intelligence rooted in Indian soil. Monitor your field devices, read sensor data, and act on crop advisories.",
+  "id": "/",
   "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#F7F9F7",
-  "theme_color": "#2E7D32",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait-primary",
-  "categories": ["agriculture", "iot", "monitoring"],
+  "background_color": "#F5F8F4",
+  "theme_color": "#2E7D32",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["agriculture", "productivity", "utilities"],
   "icons": [
+    { "src": "/icons/icon-192.jpg", "sizes": "192x192", "type": "image/jpeg", "purpose": "any" },
+    { "src": "/icons/icon-512.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any" },
+    { "src": "/icons/maskable-icon.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "maskable" }
+  ],
+  "shortcuts": [
     {
-      "src": "/icons/icon-192.jpg",
-      "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any"
+      "name": "Advisories",
+      "short_name": "Advisories",
+      "description": "Read the latest crop advisory for your field",
+      "url": "/advisories",
+      "icons": [{ "src": "/icons/icon-192.jpg", "sizes": "192x192", "type": "image/jpeg" }]
     },
     {
-      "src": "/icons/icon-512.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/maskable-icon.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "maskable"
+      "name": "Add a device",
+      "short_name": "Add device",
+      "description": "Scan the NFC tag on a MITTI unit",
+      "url": "/scan",
+      "icons": [{ "src": "/icons/icon-192.jpg", "sizes": "192x192", "type": "image/jpeg" }]
     }
   ]
 }

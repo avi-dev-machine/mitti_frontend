@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Credential scratch files (kept out of the frontend package too)
+../supabase.txt
+../twillio.txt

@@ -9,6 +9,8 @@ export interface Device {
   latitude: number;
   longitude: number;
   owner_id: string | null;
+  /** Seeded showcase unit: visible to every signed-in user and badged as demo. */
+  is_demo?: boolean;
   connection_status: 'live' | 'synced' | 'cached' | 'offline';
   alert_severity: 'green' | 'yellow' | 'orange' | 'red' | 'grey';
   last_sync_at: string;
@@ -97,3 +99,58 @@ export interface DeviceSummary {
 
 export type SeverityLevel = 'green' | 'yellow' | 'orange' | 'red' | 'grey';
 export type TimeRange = '24h' | '7d' | '30d';
+
+/* ── Added for authenticated MITTI (profiles, images, LoRa, freshness) ── */
+
+export interface Profile {
+  /** Same uuid as auth.users.id. */
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  language: string | null;
+  role: 'farmer' | 'operator' | 'admin';
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Metadata for an image the Raspberry Pi captured during an assessment.
+ * The PWA displays these; it never requests a capture.
+ */
+export interface ImageRecord {
+  id: string;
+  device_id: string;
+  captured_at: string;
+  image_url: string | null;
+  quality_status: 'good' | 'blurred' | 'dark' | 'unusable' | string;
+  visible_features: string | null;
+  analysis_summary: string | null;
+  created_at: string;
+}
+
+export interface LoraEvent {
+  id: string;
+  device_id: string;
+  message_type: string;
+  sent_at: string;
+  delivered: boolean;
+  rssi: number | null;
+  snr: number | null;
+  created_at: string;
+}
+
+/**
+ * Where a value on screen came from, and how much to trust its age.
+ * Required by MITTI_PWA_UIUX_SPECIFICATION.md §15 — a reading must never be
+ * shown without saying how current it is.
+ */
+export type DataSource = 'live' | 'synced' | 'cached' | 'stale' | 'offline' | 'unavailable';
+
+export interface Freshness {
+  label: string;
+  status: 'fresh' | 'recent' | 'stale' | 'unavailable';
+  /** Age in seconds, or null when there is no timestamp at all. */
+  ageSeconds: number | null;
+}
